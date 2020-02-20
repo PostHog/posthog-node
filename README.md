@@ -16,6 +16,7 @@ yarn add posthog-node
 In your app, set your api key **before** making any calls.
 
 ```javascript
+// const PostHog = require('posthog-node')
 import PostHog from 'posthog-node'
 
 const client = new PostHog('API key')
