@@ -75,9 +75,12 @@ class PostHog {
 
     const apiMessage = Object.assign({}, message, {
       '$set': message.properties || {},
-      event: '$identify'
+      event: '$identify',
+      properties: {
+        '$lib': 'posthog-node',
+        '$lib_version': version
+      }
     })
-    delete apiMessage.properties
 
     this.enqueue('identify', apiMessage, callback)
     return this
@@ -119,11 +122,14 @@ class PostHog {
     const apiMessage = Object.assign({}, message, {
       event: '$create_alias',
       properties: {
-        distinct_id: message.distinct_id,
-        alias: message.alias
+        distinct_id: message.distinctId || message.distinct_id,
+        alias: message.alias,
+        '$lib': 'posthog-node',
+        '$lib_version': version
       }
     })
     delete apiMessage.alias
+    delete apiMessage.distinctId
     apiMessage.distinct_id = null
 
     this.enqueue('alias', apiMessage, callback)

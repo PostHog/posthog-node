@@ -114,15 +114,15 @@ test('enqueue - add a message to the queue', t => {
 
   const item = client.queue.pop()
 
-  t.is(typeof item.message.messageId, 'string')
-  t.regex(item.message.messageId, /node-[a-zA-Z0-9]{32}/)
+  // t.is(typeof item.message.messageId, 'string')
+  // t.regex(item.message.messageId, /node-[a-zA-Z0-9]{32}/)
   t.deepEqual(item, {
     message: {
       timestamp,
       library: 'posthog-node',
       library_version: version,
-      type: 'type',
-      messageId: item.message.messageId
+      type: 'type'
+      // messageId: item.message.messageId
     },
     callback: noop
   })
@@ -230,9 +230,8 @@ test('flush - send messages', async t => {
   ]
 
   const data = await client.flush()
-  t.deepEqual(Object.keys(data), ['api_key', 'batch', 'timestamp'])
+  t.deepEqual(Object.keys(data), ['api_key', 'batch'])
   t.deepEqual(data.batch, ['a', 'b'])
-  t.true(data.timestamp instanceof Date)
   t.true(callbackA.calledOnce)
   t.true(callbackB.calledOnce)
   t.false(callbackC.called)
@@ -288,7 +287,7 @@ test('identify - enqueue a message', t => {
   const message = { distinctId: 'id', properties: { fish: 'swim in the sea' } }
   client.identify(message, noop)
 
-  const apiMessage = { distinctId: 'id', '$set': { fish: 'swim in the sea' }, event: '$identify' }
+  const apiMessage = { distinctId: 'id', '$set': { fish: 'swim in the sea' }, event: '$identify', properties: { '$lib': 'posthog-node', '$lib_version': version } }
 
   t.true(client.enqueue.calledOnce)
   t.deepEqual(client.enqueue.firstCall.args, ['identify', apiMessage, noop])
@@ -346,7 +345,7 @@ test('alias - enqueue a message', t => {
     distinctId: 'id',
     alias: 'id'
   }
-  const apiMessage = { distinctId: 'id', alias: 'id', event: '$create_alias' }
+  const apiMessage = { properties: { distinct_id: 'id', alias: 'id', '$lib': 'posthog-node', '$lib_version': version }, event: '$create_alias', distinct_id: null }
 
   client.alias(message, noop)
 
