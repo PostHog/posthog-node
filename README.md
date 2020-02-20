@@ -9,8 +9,8 @@ This library uses an internal queue to make calls non-blocking and fast. It also
 Run either the `yarn` or `npm` program to add it to your project
 
 ```shell script
-npm install posthog-ruby
-yarn add posthog-ruby
+npm install posthog-node
+yarn add posthog-node
 ```
 
 In your app, set your api key **before** making any calls.
