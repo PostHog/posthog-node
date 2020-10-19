@@ -1,6 +1,6 @@
 {
   "name": "posthog-node",
-  "version": "1.0.0.pre",
+  "version": "1.0.3",
   "description": "PostHog Node.js integration",
   "license": "MIT",
   "repository": "PostHog/posthog-node",
