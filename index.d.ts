@@ -17,10 +17,13 @@ declare module "posthog-node" {
       | Array<any | { [key: string]: string | number }>;
   }
 
-  interface P {
+  interface IdentifyMessage {
     distinctId: string;
-    event: string;
     properties?: CommonParamsInterfacePropertiesProp;
+  }
+
+  interface EventMessage extends IdentifyMessage {
+    event: string;
   }
 
   export default class PostHog {
@@ -30,20 +33,20 @@ declare module "posthog-node" {
      * which you can later use in PostHog to find patterns in usage,
      * work out which features to improve or where people are giving up.
      * A capture call requires:
-     * @param distinctid which uniquely identifies your user
+     * @param distinctId which uniquely identifies your user
      * @param event We recommend using [verb] [noun], like movie played or movie updated to easily identify what your events mean later on.
-     * @param  properties OPTIONAL | which can be a dict with any information you'd like to add
+     * @param properties OPTIONAL | which can be a dict with any information you'd like to add
      */
-    capture({ distinctId, event, properties }: P): Promise<any>;
+    capture({ distinctId, event, properties }: EventMessage): PostHog;
 
     /**
      * @description Identify lets you add metadata on your users so you can more easily identify who they are in PostHog,
      * and even do things like segment users by these properties.
      * An identify call requires:
-     * @param distinctid which uniquely identifies your user
-     * @param  properties with a dict with any key: value pairs
+     * @param distinctId which uniquely identifies your user
+     * @param properties with a dict with any key: value pairs
      */
-    identify({ distinctId, event, properties }: P): Promise<any>;
+    identify({ distinctId, event, properties }: IdentifyMessage): PostHog;
 
     /**
      * @description To marry up whatever a user does before they sign up or log in with what they do after you need to make an alias call.
@@ -53,9 +56,9 @@ declare module "posthog-node" {
      * Then, when that users signs up, you want to do an alias call with the session ID and the newly created user ID.
      * The same concept applies for when a user logs in. If you're using PostHog in the front-end and back-end,
      *  doing the identify call in the frontend will be enough.:
-     * @param distinctid the current unique id
+     * @param distinctId the current unique id
      * @param alias the unique ID of the user before
      */
-    alias(data: { distinctId: string; alias: string }): Promise<any>;
+    alias(data: { distinctId: string; alias: string }): PostHog;
   }
 }
