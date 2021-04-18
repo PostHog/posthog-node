@@ -46,7 +46,7 @@ declare module "posthog-node" {
      * @param distinctId which uniquely identifies your user
      * @param properties with a dict with any key: value pairs
      */
-    identify({ distinctId, event, properties }: IdentifyMessage): PostHog;
+    identify({ distinctId, properties }: IdentifyMessage): PostHog;
 
     /**
      * @description To marry up whatever a user does before they sign up or log in with what they do after you need to make an alias call.
