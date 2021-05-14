@@ -20,7 +20,7 @@ class PostHog {
    * @param {Object} [options] (optional)
    *   @property {Number} flushAt (default: 20)
    *   @property {Number} flushInterval (default: 10000)
-   *   @property {String} host (default: 'https://t.posthog.com')
+   *   @property {String} host (default: 'https://app.posthog.com')
    *   @property {Boolean} enable (default: true)
    */
 
@@ -31,7 +31,7 @@ class PostHog {
 
     this.queue = []
     this.apiKey = apiKey
-    this.host = removeSlash(options.host || 'https://t.posthog.com')
+    this.host = removeSlash(options.host || 'https://app.posthog.com')
     this.timeout = options.timeout || false
     this.flushAt = Math.max(options.flushAt, 1) || 20
     this.flushInterval = typeof options.flushInterval === 'number' ? options.flushInterval : 10000

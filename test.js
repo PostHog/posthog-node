@@ -75,7 +75,7 @@ test('default options', t => {
   const client = new PostHog('key')
 
   t.is(client.apiKey, 'key')
-  t.is(client.host, 'https://t.posthog.com')
+  t.is(client.host, 'https://app.posthog.com')
   t.is(client.flushAt, 20)
   t.is(client.flushInterval, 10000)
 })
