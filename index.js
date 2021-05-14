@@ -34,7 +34,7 @@ class PostHog {
     this.host = removeSlash(options.host || 'https://t.posthog.com')
     this.timeout = options.timeout || false
     this.flushAt = Math.max(options.flushAt, 1) || 20
-    this.flushInterval = options.flushInterval || 10000
+    this.flushInterval = typeof options.flushInterval === 'number' ? options.flushInterval : 10000
     this.flushed = false
     Object.defineProperty(this, 'enable', {
       configurable: false,
