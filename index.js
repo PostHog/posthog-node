@@ -55,17 +55,19 @@ class PostHog {
             retryDelay: axiosRetry.exponentialDelay,
         })
 
-        const featureFlagCalledCallback = (key, distinctId, isFlagEnabledResponse) => {
-            this.capture({
-                distinctId,
-                event: '$feature_flag_called',
-                properties: {
-                    $feature_flag: key,
-                    $feature_flag_response: isFlagEnabledResponse,
-                },
-            })
-        }
         if (this.personalApiKey) {
+
+            const featureFlagCalledCallback = (key, distinctId, isFlagEnabledResponse) => {
+                this.capture({
+                    distinctId,
+                    event: '$feature_flag_called',
+                    properties: {
+                        $feature_flag: key,
+                        $feature_flag_response: isFlagEnabledResponse,
+                    },
+                })
+            }
+            
             this.featureFlagsPoller = new FeatureFlagsPoller({
                 featureFlagsPollingInterval:
                     typeof options.featureFlagsPollingInterval === 'number'

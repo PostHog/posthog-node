@@ -79,6 +79,12 @@ declare module 'posthog-node' {
          * already polled automatically at a regular interval.
         */
         async reloadFeatureFlags(): void
+
+        /**
+         * @description Flushes the events still in the queue and clears the feature flags poller to allow for
+         * a clean shutdown.
+        */
+        async shutdown(): void
     }
 
 }
