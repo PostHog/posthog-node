@@ -71,20 +71,20 @@ declare module 'posthog-node' {
          * @param distinctId the current unique id
          * @param defaultResult optional - default value to be returned if the feature flag is not on for the user
         */
-        async isFeatureEnabled(key: string, distinctId: string, defaultResult?: boolean): boolean
+        isFeatureEnabled(key: string, distinctId: string, defaultResult?: boolean): Promise<boolean>
 
 
         /**
          * @description Force an immediate reload of the polled feature flags. Please note that they are 
          * already polled automatically at a regular interval.
         */
-        async reloadFeatureFlags(): void
+        reloadFeatureFlags(): Promise<void>
 
         /**
          * @description Flushes the events still in the queue and clears the feature flags poller to allow for
          * a clean shutdown.
         */
-        async shutdown(): void
+        shutdown(): void
     }
 
 }

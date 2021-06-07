@@ -56,7 +56,6 @@ class PostHog {
         })
 
         if (this.personalApiKey) {
-
             const featureFlagCalledCallback = (key, distinctId, isFlagEnabledResponse) => {
                 this.capture({
                     distinctId,
@@ -67,7 +66,7 @@ class PostHog {
                     },
                 })
             }
-            
+
             this.featureFlagsPoller = new FeatureFlagsPoller({
                 featureFlagsPollingInterval:
                     typeof options.featureFlagsPollingInterval === 'number'

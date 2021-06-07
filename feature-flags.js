@@ -1,6 +1,8 @@
 const axios = require('axios')
 const crypto = require('crypto')
 const ms = require('ms')
+const version = require('./package.json').version
+
 
 const LONG_SCALE = 0xfffffffffffffff
 
@@ -50,7 +52,7 @@ class FeatureFlagsPoller {
                 rolloutPercentage: featureFlag.rolloutPercentage,
             })
         } else {
-            const res = await this._request({ path: 'decide' })
+            const res = await this._request({ path: 'decide', method: 'POST', data: { distinct_id: distinctId } })
             isFlagEnabledResponse = res.data.featureFlags.indexOf(key) >= 0
         }
 
@@ -98,13 +100,24 @@ class FeatureFlagsPoller {
     }
 
     /* istanbul ignore next */
-    async _request({ path, authorizationKey = this.projectApiKey }) {
+    async _request({ path, method = 'GET', authorizationKey = this.projectApiKey, data = {} }) {
+
+        let headers = {
+            Authorization: `Bearer ${authorizationKey}`,
+            'Content-Type': 'application/json',
+        }
+
+        data = {...data, token: authorizationKey}
+
+        if (typeof window === 'undefined') {
+            headers['user-agent'] = `posthog-node/${version}`
+        }
+        
         const req = {
-            method: 'GET',
+            method: method,
             url: `${this.host}/${path}/`,
-            headers: {
-                Authorization: `Bearer ${authorizationKey}`,
-            },
+            headers: headers,
+            data: JSON.stringify(data),
         }
 
         if (this.timeout) {
