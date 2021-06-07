@@ -465,3 +465,14 @@ test('feature flags - default override', async (t) => {
 
     client.shutdown()
 })
+
+test('feature flags - simple flag calculation', async (t) => {
+    const client = createClient({ personalApiKey: 'my very secret key' })
+    const simpleFlagEnabled = client.featureFlagsPoller._isSimpleFlagEnabled({key: 'a', distinctId: 'b', rolloutPercentage: 42})
+    t.is(simpleFlagEnabled, true)
+
+    const simpleFlagDisabled = client.featureFlagsPoller._isSimpleFlagEnabled({key: 'a', distinctId: 'b', rolloutPercentage: 40})
+    t.is(simpleFlagDisabled, false)
+
+    client.shutdown()
+})

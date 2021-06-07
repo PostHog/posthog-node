@@ -87,7 +87,6 @@ class FeatureFlagsPoller {
 
     // sha1('a.b') should equal '69f6642c9d71b463485b4faf4e989dc3fe77a8c6'
     // integerRepresentationOfHashSubset / LONG_SCALE for sha1('a.b') should equal 0.4139158829615955
-    /* istanbul ignore next */
     _isSimpleFlagEnabled({ key, distinctId, rolloutPercentage }) {
         if (!rolloutPercentage) {
             return true
