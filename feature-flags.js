@@ -3,7 +3,6 @@ const crypto = require('crypto')
 const ms = require('ms')
 const version = require('./package.json').version
 
-
 const LONG_SCALE = 0xfffffffffffffff
 
 class ValueError extends Error {}
@@ -101,15 +100,14 @@ class FeatureFlagsPoller {
 
     /* istanbul ignore next */
     async _request({ path, method = 'GET', usePersonalApiKey = false, data = {} }) {
-
         let headers = {
             'Content-Type': 'application/json',
         }
 
         if (usePersonalApiKey) {
-            headers = { ...headers, Authorization: `Bearer ${this.personalApiKey}`}
+            headers = { ...headers, Authorization: `Bearer ${this.personalApiKey}` }
         } else {
-            data = {...data, token: this.projectApiKey}
+            data = { ...data, token: this.projectApiKey }
         }
 
         if (typeof window === 'undefined') {

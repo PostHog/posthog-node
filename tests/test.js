@@ -62,7 +62,7 @@ test.before.cb((t) => {
         .get('/api/feature_flag', (req, res) => {
             return res.status(200).json(mockSimpleFlagResponse)
         })
-        .get('/decide', (req, res) => {
+        .post('/decide', (req, res) => {
             return res.status(200).json({
                 featureFlags: ['enabled-flag']
             })
