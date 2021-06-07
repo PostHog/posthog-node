@@ -74,7 +74,7 @@ class FeatureFlagsPoller {
         }
         this.poller = setTimeout(() => this._loadFeatureFlags(), this.pollingInterval)
 
-        const res = await this._request({ path: 'api/feature_flag', authorizationKey: this.personalApiKey })
+        const res = await this._request({ path: 'api/feature_flag', usePersonalApiKey: true })
 
         if (res && res.status === 401) {
             throw new ValueError(
@@ -100,19 +100,22 @@ class FeatureFlagsPoller {
     }
 
     /* istanbul ignore next */
-    async _request({ path, method = 'GET', authorizationKey = this.projectApiKey, data = {} }) {
+    async _request({ path, method = 'GET', usePersonalApiKey = false, data = {} }) {
 
         let headers = {
-            Authorization: `Bearer ${authorizationKey}`,
             'Content-Type': 'application/json',
         }
 
-        data = {...data, token: authorizationKey}
+        if (usePersonalApiKey) {
+            headers = { ...headers, Authorization: `Bearer ${this.personalApiKey}`}
+        } else {
+            data = {...data, token: this.projectApiKey}
+        }
 
         if (typeof window === 'undefined') {
             headers['user-agent'] = `posthog-node/${version}`
         }
-        
+
         const req = {
             method: method,
             url: `${this.host}/${path}/`,
