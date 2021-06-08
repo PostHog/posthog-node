@@ -8,8 +8,7 @@ Specifically, [Node.js library details](https://posthog.com/docs/libraries/node)
 
 ## Releasing a new version
 
-Just bump up `version` in `package.json` on the main branch and the new version will be published automatically,
-with a matching PR in the [main PostHog repo](https://github.com/posthog/posthog) created.
+Just bump up `version` in `package.json` on the main branch and the new version will be published automatically.
 
 It's advised to use `bump patch/minor/major` label on PRs - that way the above will be done automatically
 when the PR is merged.
