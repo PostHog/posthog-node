@@ -6,7 +6,6 @@ declare module 'posthog-node' {
         flushAt?: number
         flushInterval?: number
         host?: string
-        api_host?: string
         enable?: boolean
         personalApiKey?: string
         featureFlagsPollingInterval?: number
