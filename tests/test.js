@@ -407,7 +407,7 @@ test('isErrorRetryable', (t) => {
     t.false(client._isErrorRetryable({ response: { status: 200 } }))
 })
 
-test('allows messages > 32kb', (t) => {
+test('allows messages > 32 kB', (t) => {
     const client = createClient()
 
     const event = {

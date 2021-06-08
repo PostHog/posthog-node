@@ -2,7 +2,7 @@ var type = require('component-type')
 var join = require('join-component')
 var assert = require('assert')
 
-// PostHog messages can be a maximum of 32kb.
+// PostHog messages can be a maximum of 32 kB.
 var MAX_SIZE = 32 << 10
 
 module.exports = eventValidation
@@ -74,7 +74,7 @@ function validateGenericEvent(event) {
     assert(type(event) === 'object', 'You must pass a message object.')
     var json = JSON.stringify(event)
     // Strings are variable byte encoded, so json.length is not sufficient.
-    assert(Buffer.byteLength(json, 'utf8') < MAX_SIZE, 'Your message must be < 32kb.')
+    assert(Buffer.byteLength(json, 'utf8') < MAX_SIZE, 'Your message must be < 32 kB.')
 
     for (var key in genericValidationRules) {
         var val = event[key]
