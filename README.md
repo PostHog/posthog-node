@@ -1,19 +1,24 @@
-# PostHog NodeJS
+# PostHog Node.js Library
 
-Please see the main [PostHog docs](https://posthog.com/docs).
+[![npm package](https://img.shields.io/npm/v/posthog-node?style=flat-square)](https://www.npmjs.com/package/posthog-node)
+[![MIT License](https://img.shields.io/badge/License-MIT-red.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-Specifically, the [NodeJS integration](https://posthog.com/docs/integrations/node-integration) details.
+Please see [PostHog Docs](https://posthog.com/docs).
+Specifically, [Node.js library details](https://posthog.com/docs/libraries/node).
+
+## Releasing a new version
+
+Just bump up `version` in `package.json` on the main branch and the new version will be published automatically.
+
+It's advised to use `bump patch/minor/major` label on PRs - that way the above will be done automatically
+when the PR is merged.
+
+Courtesy of GitHub Actions.
+
+## Thanks
+
+This library is largely based on the `analytics-node` package.
 
 ## Questions?
 
-### [Join our Slack community.](https://join.slack.com/t/posthogusers/shared_invite/enQtOTY0MzU5NjAwMDY3LTc2MWQ0OTZlNjhkODk3ZDI3NDVjMDE1YjgxY2I4ZjI4MzJhZmVmNjJkN2NmMGJmMzc2N2U3Yjc3ZjI5NGFlZDQ)
-
-## Development
-
-### How to Release
-1. Run `npm version patch` (or minor/major)
-3. Run `npm publish`
-
-## Thank You
-
-This library is largely based on the `analytics-node` package.
+### [Join our Slack community.](https://posthog.com/slack)
