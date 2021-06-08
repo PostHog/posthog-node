@@ -21,7 +21,7 @@
     "scripts": {
         "dependencies": "yarn",
         "size": "size-limit",
-        "test": "standard && nyc ava",
+        "test": "nyc ava",
         "report-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
         "format": "prettier --write ."
     },
@@ -63,7 +63,6 @@
         "prettier": "^2.3.1",
         "sinon": "^7.3.2",
         "size-limit": "^1.3.5",
-        "snyk": "^1.171.1",
-        "standard": "^12.0.1"
+        "snyk": "^1.171.1"
     }
 }
