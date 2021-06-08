@@ -468,11 +468,13 @@ test('feature flags - default override', async (t) => {
 
 test('feature flags - simple flag calculation', async (t) => {
     const client = createClient({ personalApiKey: 'my very secret key' })
-    const simpleFlagEnabled = client.featureFlagsPoller._isSimpleFlagEnabled({key: 'a', distinctId: 'b', rolloutPercentage: 42})
-    t.is(simpleFlagEnabled, true)
 
-    const simpleFlagDisabled = client.featureFlagsPoller._isSimpleFlagEnabled({key: 'a', distinctId: 'b', rolloutPercentage: 40})
-    t.is(simpleFlagDisabled, false)
+    // This tests that the hashing + mathematical operations across libs are consistent 
+    let flagEnabled = client.featureFlagsPoller._isSimpleFlagEnabled({key: 'a', distinctId: 'b', rolloutPercentage: 42})
+    t.is(flagEnabled, true)
+
+    flagEnabled = client.featureFlagsPoller._isSimpleFlagEnabled({key: 'a', distinctId: 'b', rolloutPercentage: 40})
+    t.is(flagEnabled, false)
 
     client.shutdown()
 })

@@ -5,7 +5,6 @@ const version = require('./package.json').version
 
 const LONG_SCALE = 0xfffffffffffffff
 
-class ValueError extends Error {}
 
 class FeatureFlagsPoller {
     constructor({ pollingInterval, personalApiKey, projectApiKey, timeout, host, featureFlagCalledCallback }) {
@@ -76,7 +75,7 @@ class FeatureFlagsPoller {
         const res = await this._request({ path: 'api/feature_flag', usePersonalApiKey: true })
 
         if (res && res.status === 401) {
-            throw new ValueError(
+            throw new Error(
                 `Your personalApiKey is invalid. Are you sure you're not using your Project API key? More information: https://posthog.com/docs/api/overview`
             )
         }

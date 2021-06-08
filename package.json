@@ -21,7 +21,7 @@
     "scripts": {
         "dependencies": "yarn",
         "size": "size-limit",
-        "test": "nyc ava",
+        "test": "nyc ava tests/*.js",
         "report-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
         "format": "prettier --write ."
     },
