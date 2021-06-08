@@ -7,10 +7,12 @@ const axiosRetry = require('axios-retry')
 const ms = require('ms')
 const version = require('./package.json').version
 const looselyValidate = require('./event-validation')
+const { FeatureFlagsPoller } = require('./feature-flags')
 
 const setImmediate = global.setImmediate || process.nextTick.bind(process)
 const noop = () => {}
 
+const FIVE_MINUTES = 5 * 60 * 1000
 class PostHog {
     /**
      * Initialize a new `PostHog` with your PostHog project's `apiKey` and an
@@ -22,6 +24,8 @@ class PostHog {
      *   @property {Number} flushInterval (default: 10000)
      *   @property {String} host (default: 'https://app.posthog.com')
      *   @property {Boolean} enable (default: true)
+     *   @property {String} featureFlagsPollingInterval (default: 300000)
+     *   @property {String} personalApiKey
      */
 
     constructor(apiKey, options) {
@@ -36,6 +40,8 @@ class PostHog {
         this.flushAt = Math.max(options.flushAt, 1) || 20
         this.flushInterval = typeof options.flushInterval === 'number' ? options.flushInterval : 10000
         this.flushed = false
+        this.personalApiKey = options.personalApiKey
+
         Object.defineProperty(this, 'enable', {
             configurable: false,
             writable: false,
@@ -48,16 +54,41 @@ class PostHog {
             retryCondition: this._isErrorRetryable,
             retryDelay: axiosRetry.exponentialDelay,
         })
+
+        if (this.personalApiKey) {
+            const featureFlagCalledCallback = (key, distinctId, isFlagEnabledResponse) => {
+                this.capture({
+                    distinctId,
+                    event: '$feature_flag_called',
+                    properties: {
+                        $feature_flag: key,
+                        $feature_flag_response: isFlagEnabledResponse,
+                    },
+                })
+            }
+
+            this.featureFlagsPoller = new FeatureFlagsPoller({
+                featureFlagsPollingInterval:
+                    typeof options.featureFlagsPollingInterval === 'number'
+                        ? options.featureFlagsPollingInterval
+                        : FIVE_MINUTES,
+                personalApiKey: options.personalApiKey,
+                projectApiKey: apiKey,
+                timeout: options.timeout || false,
+                host: this.host,
+                featureFlagCalledCallback,
+            })
+        }
     }
 
     _validate(message, type) {
         try {
             looselyValidate(message, type)
         } catch (e) {
-            if (e.message === 'Your message must be < 32kb.') {
+            if (e.message === 'Your message must be < 32 kB.') {
                 console.log(
-                    'Your message must be < 32kb. This is currently surfaced as a warning to allow clients to update. Versions released after August 1, 2018 will throw an error instead. Please update your code before then.',
-                    message
+                    'Your message must be < 32 kB.',
+                    JSON.stringify(message)
                 )
                 return
             }
@@ -183,8 +214,17 @@ class PostHog {
         }
 
         if (this.flushInterval && !this.timer) {
-            this.timer = setTimeout(this.flush.bind(this), this.flushInterval)
+            this.timer = setTimeout(() => this.flush(), this.flushInterval)
         }
+    }
+
+    async isFeatureEnabled(key, distinctId, defaultResult) {
+        assert(this.personalApiKey, 'You have to specify the option personalApiKey to use feature flags.')
+        return await this.featureFlagsPoller.isFeatureEnabled(key, distinctId, defaultResult)
+    }
+
+    async reloadFeatureFlags() {
+        await this.featureFlagsPoller.loadFeatureFlags(true)
     }
 
     /**
@@ -254,6 +294,13 @@ class PostHog {
 
                 done(err)
             })
+    }
+
+    shutdown() {
+        if (this.personalApiKey) {
+            this.featureFlagsPoller.stopPoller()
+        }
+        this.flush()
     }
 
     _isErrorRetryable(error) {

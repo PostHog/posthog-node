@@ -6,8 +6,9 @@ declare module 'posthog-node' {
         flushAt?: number
         flushInterval?: number
         host?: string
-        api_host?: string
         enable?: boolean
+        personalApiKey?: string
+        featureFlagsPollingInterval?: number
     }
 
     interface CommonParamsInterfacePropertiesProp {
@@ -34,7 +35,7 @@ declare module 'posthog-node' {
          * @param event We recommend using [verb] [noun], like movie played or movie updated to easily identify what your events mean later on.
          * @param properties OPTIONAL | which can be a dict with any information you'd like to add
          */
-        capture({ distinctId, event, properties }: EventMessage): PostHog
+        capture({ distinctId, event, properties }: EventMessage): void
 
         /**
          * @description Identify lets you add metadata on your users so you can more easily identify who they are in PostHog,
@@ -43,7 +44,7 @@ declare module 'posthog-node' {
          * @param distinctId which uniquely identifies your user
          * @param properties with a dict with any key: value pairs
          */
-        identify({ distinctId, properties }: IdentifyMessage): PostHog
+        identify({ distinctId, properties }: IdentifyMessage): void
 
         /**
          * @description To marry up whatever a user does before they sign up or log in with what they do after you need to make an alias call.
@@ -56,6 +57,33 @@ declare module 'posthog-node' {
          * @param distinctId the current unique id
          * @param alias the unique ID of the user before
          */
-        alias(data: { distinctId: string; alias: string }): PostHog
+        alias(data: { distinctId: string; alias: string }): void
+
+
+        /**
+         * @description PostHog feature flags (https://posthog.com/docs/features/feature-flags) 
+         * allow you to safely deploy and roll back new features. Once you've created a feature flag in PostHog,
+         * you can use this method to check if the flag is on for a given user, allowing you to create logic to turn 
+         * features on and off for different user groups or individual users.
+         * IMPORTANT: To use this method, you need to specify `personalApiKey` in your config! More info: https://posthog.com/docs/api/overview
+         * @param key the unique key of your feature flag
+         * @param distinctId the current unique id
+         * @param defaultResult optional - default value to be returned if the feature flag is not on for the user
+        */
+        isFeatureEnabled(key: string, distinctId: string, defaultResult?: boolean): Promise<boolean>
+
+
+        /**
+         * @description Force an immediate reload of the polled feature flags. Please note that they are 
+         * already polled automatically at a regular interval.
+        */
+        reloadFeatureFlags(): Promise<void>
+
+        /**
+         * @description Flushes the events still in the queue and clears the feature flags poller to allow for
+         * a clean shutdown.
+        */
+        shutdown(): void
     }
+
 }

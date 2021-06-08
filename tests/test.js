@@ -4,8 +4,10 @@ import express from 'express'
 import delay from 'delay'
 import pify from 'pify'
 import test from 'ava'
-import PostHog from '.'
-import { version } from './package'
+import PostHog from '../index'
+import { version } from '../package'
+import { mockSimpleFlagResponse } from './assets/mockFlagsResponse'
+
 
 const noop = () => {}
 
@@ -56,6 +58,14 @@ test.before.cb((t) => {
             }
 
             res.json({})
+        })
+        .get('/api/feature_flag', (req, res) => {
+            return res.status(200).json(mockSimpleFlagResponse)
+        })
+        .post('/decide', (req, res) => {
+            return res.status(200).json({
+                featureFlags: ['enabled-flag']
+            })
         })
         .listen(port, t.end)
 })
@@ -265,7 +275,7 @@ test('flush - time out if configured', async (t) => {
         },
     ]
     await t.throws(client.flush(), 'timeout of 500ms exceeded')
-})
+}) 
 
 test('flush - skip when client is disabled', async (t) => {
     const client = createClient({ enable: false })
@@ -397,7 +407,7 @@ test('isErrorRetryable', (t) => {
     t.false(client._isErrorRetryable({ response: { status: 200 } }))
 })
 
-test('allows messages > 32kb', (t) => {
+test('allows messages > 32 kB', (t) => {
     const client = createClient()
 
     const event = {
@@ -412,4 +422,59 @@ test('allows messages > 32kb', (t) => {
     t.notThrows(() => {
         client.capture(event, noop)
     })
+})
+
+test('feature flags - require personalApiKey', async (t) => {
+    const client = createClient()
+
+    await t.throws(client.isFeatureEnabled('simpleFlag', 'some id'), 'You have to specify the option personalApiKey to use feature flags.')
+
+    client.shutdown()
+})
+
+test('feature flags - isSimpleFlag', async (t) => {
+    const client = createClient({ personalApiKey: 'my very secret key' })
+
+    const isEnabled = await client.isFeatureEnabled('simpleFlag', 'some id')
+
+    t.is(isEnabled, true)
+
+    client.shutdown()
+})
+
+test('feature flags - complex flags', async (t) => {
+    const client = createClient({ personalApiKey: 'my very secret key' })
+
+    const expectedEnabledFlag = await client.isFeatureEnabled('enabled-flag', 'some id')
+    const expectedDisabledFlag = await client.isFeatureEnabled('disabled-flag', 'some id')
+
+    t.is(expectedEnabledFlag, true)
+    t.is(expectedDisabledFlag, false)
+
+    client.shutdown()
+})
+
+test('feature flags - default override', async (t) => {
+    const client = createClient({ personalApiKey: 'my very secret key' })
+
+    let flagEnabled = await client.isFeatureEnabled('i-dont-exist', 'some id')
+    t.is(flagEnabled, false)
+
+    flagEnabled = await client.isFeatureEnabled('i-dont-exist', 'some id', true)
+    t.is(flagEnabled, true)
+
+    client.shutdown()
+})
+
+test('feature flags - simple flag calculation', async (t) => {
+    const client = createClient({ personalApiKey: 'my very secret key' })
+
+    // This tests that the hashing + mathematical operations across libs are consistent 
+    let flagEnabled = client.featureFlagsPoller._isSimpleFlagEnabled({key: 'a', distinctId: 'b', rolloutPercentage: 42})
+    t.is(flagEnabled, true)
+
+    flagEnabled = client.featureFlagsPoller._isSimpleFlagEnabled({key: 'a', distinctId: 'b', rolloutPercentage: 40})
+    t.is(flagEnabled, false)
+
+    client.shutdown()
 })
