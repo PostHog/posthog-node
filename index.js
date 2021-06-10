@@ -86,7 +86,10 @@ class PostHog {
             looselyValidate(message, type)
         } catch (e) {
             if (e.message === 'Your message must be < 32 kB.') {
-                console.log('Your message must be < 32 kB.', JSON.stringify(message))
+                console.log(
+                    'Your message must be < 32 kB.',
+                    JSON.stringify(message)
+                )
                 return
             }
             throw e
