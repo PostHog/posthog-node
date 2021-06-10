@@ -7,6 +7,8 @@ import test from 'ava'
 import PostHog from '../index'
 import { version } from '../package'
 import { mockSimpleFlagResponse } from './assets/mockFlagsResponse'
+import { context, setSpan, SpanKind } from '@opentelemetry/api';
+import { BasicTracerProvider, InMemorySpanExporter, SimpleSpanProcessor } from '@opentelemetry/tracing'
 
 const noop = () => {}
 
@@ -430,6 +432,34 @@ test('feature flags - require personalApiKey', async (t) => {
         client.isFeatureEnabled('simpleFlag', 'some id'),
         'You have to specify the option personalApiKey to use feature flags.'
     )
+
+    client.shutdown()
+})
+
+test('tracing - creates span for isFeatureEnabled with flag details', async (t) => {
+    const memoryExporter = new InMemorySpanExporter()
+    const provider = new BasicTracerProvider()
+    provider.addSpanProcessor(new SimpleSpanProcessor(memoryExporter))
+    provider.register()
+
+    const client = createClient({ personalApiKey: 'my very secret key' })
+
+    const isEnabled = await client.isFeatureEnabled('simpleFlag', 'some id')
+
+    t.is(isEnabled, true)
+
+    const endedSpans = memoryExporter.getFinishedSpans()
+
+    // assume the last span is the isFeatureEnabled span and check for expected attributes
+    const lastSpan = endedSpans.pop()
+    t.is(lastSpan.name, 'PostHog - isFeatureEnabled')
+    t.is(lastSpan.kind, SpanKind.CLIENT)
+    t.is(lastSpan.attributes['posthog.distinctid'], 'some id')
+    t.is(lastSpan.attributes['posthog.flag'], 'simpleFlag')
+    t.is(lastSpan.attributes['posthog.fallback_result'], false)
+    t.is(lastSpan.attributes['posthog.value'], true)
+
+    memoryExporter.reset()
 
     client.shutdown()
 })

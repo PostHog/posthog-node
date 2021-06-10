@@ -23,7 +23,7 @@ class FeatureFlagsPoller {
     }
 
     async isFeatureEnabled(key, distinctId, defaultResult = false) {
-        const span = libraryTracer.startSpan('isFeatureEnabled', { kind: tracingApi.SpanKind.SERVER })
+        const span = tracingApi.trace.getSpan(tracingApi.context.active()) ?? libraryTracer.startSpan('PostHog - isFeatureEnabled', { kind: tracingApi.SpanKind.CLIENT })
         span.setAttribute('posthog.distinctid', distinctId)
         span.setAttribute('posthog.flag', key)
         span.setAttribute('posthog.fallback_result', defaultResult)
@@ -72,7 +72,7 @@ class FeatureFlagsPoller {
     }
 
     async loadFeatureFlags(forceReload = false) {
-        const span = libraryTracer.startSpan('loadFeatureFlags')
+        const span = libraryTracer.startSpan('PostHog - loadFeatureFlags')
         span.setAttribute('posthog.force_reload', forceReload)
         if (!this.loadedSuccessfullyOnce || forceReload) {
             await this._loadFeatureFlags()
