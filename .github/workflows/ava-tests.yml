@@ -1,22 +1,22 @@
 name: CI
 
 on:
-  - pull_request
+    - pull_request
 
 jobs:
-  build:
-    name: Ava tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+    build:
+        name: Ava tests
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
 
-      - name: Install Node 12
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12
+            - name: Install Node 12
+              uses: actions/setup-node@v1
+              with:
+                  node-version: 12
 
-      - name: Install dependencies from npm
-        run: yarn
+            - name: Install dependencies from npm
+              run: yarn
 
-      - name: Run tests
-        run: yarn test
+            - name: Run tests
+              run: yarn test

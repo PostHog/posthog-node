@@ -8,7 +8,6 @@ import PostHog from '../index'
 import { version } from '../package'
 import { mockSimpleFlagResponse } from './assets/mockFlagsResponse'
 
-
 const noop = () => {}
 
 const port = 6042
@@ -64,7 +63,7 @@ test.before.cb((t) => {
         })
         .post('/decide', (req, res) => {
             return res.status(200).json({
-                featureFlags: ['enabled-flag']
+                featureFlags: ['enabled-flag'],
             })
         })
         .listen(port, t.end)
@@ -275,7 +274,7 @@ test('flush - time out if configured', async (t) => {
         },
     ]
     await t.throws(client.flush(), 'timeout of 500ms exceeded')
-}) 
+})
 
 test('flush - skip when client is disabled', async (t) => {
     const client = createClient({ enable: false })
@@ -427,7 +426,10 @@ test('allows messages > 32 kB', (t) => {
 test('feature flags - require personalApiKey', async (t) => {
     const client = createClient()
 
-    await t.throws(client.isFeatureEnabled('simpleFlag', 'some id'), 'You have to specify the option personalApiKey to use feature flags.')
+    await t.throws(
+        client.isFeatureEnabled('simpleFlag', 'some id'),
+        'You have to specify the option personalApiKey to use feature flags.'
+    )
 
     client.shutdown()
 })
@@ -469,11 +471,15 @@ test('feature flags - default override', async (t) => {
 test('feature flags - simple flag calculation', async (t) => {
     const client = createClient({ personalApiKey: 'my very secret key' })
 
-    // This tests that the hashing + mathematical operations across libs are consistent 
-    let flagEnabled = client.featureFlagsPoller._isSimpleFlagEnabled({key: 'a', distinctId: 'b', rolloutPercentage: 42})
+    // This tests that the hashing + mathematical operations across libs are consistent
+    let flagEnabled = client.featureFlagsPoller._isSimpleFlagEnabled({
+        key: 'a',
+        distinctId: 'b',
+        rolloutPercentage: 42,
+    })
     t.is(flagEnabled, true)
 
-    flagEnabled = client.featureFlagsPoller._isSimpleFlagEnabled({key: 'a', distinctId: 'b', rolloutPercentage: 40})
+    flagEnabled = client.featureFlagsPoller._isSimpleFlagEnabled({ key: 'a', distinctId: 'b', rolloutPercentage: 40 })
     t.is(flagEnabled, false)
 
     client.shutdown()
