@@ -7,7 +7,7 @@ import test from 'ava'
 import PostHog from '../index'
 import { version } from '../package'
 import { mockSimpleFlagResponse } from './assets/mockFlagsResponse'
-import { context, setSpan, SpanKind } from '@opentelemetry/api';
+import { context, setSpan, SpanKind } from '@opentelemetry/api'
 import { BasicTracerProvider, InMemorySpanExporter, SimpleSpanProcessor } from '@opentelemetry/tracing'
 
 const noop = () => {}

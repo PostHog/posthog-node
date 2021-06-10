@@ -23,7 +23,9 @@ class FeatureFlagsPoller {
     }
 
     async isFeatureEnabled(key, distinctId, defaultResult = false) {
-        const span = tracingApi.trace.getSpan(tracingApi.context.active()) ?? libraryTracer.startSpan('PostHog - isFeatureEnabled', { kind: tracingApi.SpanKind.CLIENT })
+        const span =
+            tracingApi.trace.getSpan(tracingApi.context.active()) ??
+            libraryTracer.startSpan('PostHog - isFeatureEnabled', { kind: tracingApi.SpanKind.CLIENT })
         span.setAttribute('posthog.distinctid', distinctId)
         span.setAttribute('posthog.flag', key)
         span.setAttribute('posthog.fallback_result', defaultResult)
