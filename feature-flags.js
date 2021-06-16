@@ -80,7 +80,7 @@ class FeatureFlagsPoller {
             )
         }
 
-        this.featureFlags = res.data.results
+        this.featureFlags = res.data.results.filter(flag => flag.active)
         this.loadedSuccessfullyOnce = true
     }
 
@@ -98,12 +98,14 @@ class FeatureFlagsPoller {
 
     /* istanbul ignore next */
     async _request({ path, method = 'GET', usePersonalApiKey = false, data = {} }) {
+        let url = `${this.host}/${path}/`
         let headers = {
             'Content-Type': 'application/json',
         }
 
         if (usePersonalApiKey) {
             headers = { ...headers, Authorization: `Bearer ${this.personalApiKey}` }
+            url = url + `?token=${this.projectApiKey}`
         } else {
             data = { ...data, token: this.projectApiKey }
         }
@@ -114,7 +116,7 @@ class FeatureFlagsPoller {
 
         const req = {
             method: method,
-            url: `${this.host}/${path}/`,
+            url: url,
             headers: headers,
             data: JSON.stringify(data),
         }
