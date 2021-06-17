@@ -2,9 +2,10 @@ const axios = require('axios')
 const crypto = require('crypto')
 const ms = require('ms')
 const version = require('./package.json').version
+const libraryTracer = require('./tracing')
+const tracingApi = require('@opentelemetry/api')
 
 const LONG_SCALE = 0xfffffffffffffff
-
 
 class FeatureFlagsPoller {
     constructor({ pollingInterval, personalApiKey, projectApiKey, timeout, host, featureFlagCalledCallback }) {
@@ -22,9 +23,18 @@ class FeatureFlagsPoller {
     }
 
     async isFeatureEnabled(key, distinctId, defaultResult = false) {
+        const span =
+            tracingApi.trace.getSpan(tracingApi.context.active()) ??
+            libraryTracer.startSpan('PostHog - isFeatureEnabled', { kind: tracingApi.SpanKind.CLIENT })
+        span.setAttribute('posthog.distinctid', distinctId)
+        span.setAttribute('posthog.flag', key)
+        span.setAttribute('posthog.fallback_result', defaultResult)
+
         await this.loadFeatureFlags()
 
         if (!this.loadedSuccessfullyOnce) {
+            span.setAttribute('posthog.value', defaultResult)
+            span.end()
             return defaultResult
         }
 
@@ -38,6 +48,8 @@ class FeatureFlagsPoller {
         }
 
         if (!featureFlag) {
+            span.setAttribute('posthog.value', defaultResult)
+            span.end()
             return defaultResult
         }
 
@@ -55,13 +67,19 @@ class FeatureFlagsPoller {
         }
 
         this.featureFlagCalledCallback(key, distinctId, isFlagEnabledResponse)
+
+        span.setAttribute('posthog.value', isFlagEnabledResponse)
+        span.end()
         return isFlagEnabledResponse
     }
 
     async loadFeatureFlags(forceReload = false) {
+        const span = libraryTracer.startSpan('PostHog - loadFeatureFlags')
+        span.setAttribute('posthog.force_reload', forceReload)
         if (!this.loadedSuccessfullyOnce || forceReload) {
             await this._loadFeatureFlags()
         }
+        span.end()
     }
 
     /* istanbul ignore next */

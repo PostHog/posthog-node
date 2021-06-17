@@ -14,7 +14,7 @@
     },
     "size-limit": [
         {
-            "limit": "25 KB",
+            "limit": "115 KB",
             "path": "index.js"
         }
     ],
@@ -42,6 +42,7 @@
         "funnels"
     ],
     "dependencies": {
+        "@opentelemetry/api": "^0.20.0",
         "axios": "^0.21.1",
         "axios-retry": "^3.1.9",
         "component-type": "^1.2.1",
@@ -52,6 +53,7 @@
         "uuid": "^8.3.2"
     },
     "devDependencies": {
+        "@opentelemetry/tracing": "^0.20.0",
         "ava": "^0.25.0",
         "basic-auth": "^2.0.1",
         "body-parser": "^1.17.1",
