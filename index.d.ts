@@ -10,14 +10,9 @@ declare module 'posthog-node' {
         personalApiKey?: string
         featureFlagsPollingInterval?: number
     }
-
-    interface CommonParamsInterfacePropertiesProp {
-        [key: string]: string | number | Array<any | { [key: string]: string | number }>
-    }
-
     interface IdentifyMessage {
         distinctId: string
-        properties?: CommonParamsInterfacePropertiesProp
+        properties?: Record<string | number, any>
     }
 
     interface EventMessage extends IdentifyMessage {
